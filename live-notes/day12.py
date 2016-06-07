@@ -51,7 +51,7 @@ room
 - desctiption
 player
 - health
-- backpac
+- backpack
 * move thrugh exit
 subclass player for monsters
 dungeon
@@ -86,7 +86,7 @@ You're like Alice in that crazy-tiny-room thing.", {})
 tr1.doors = {'east': tr1, 'west': tr1}
 tr2.doors['west'] = tr1
 
-
+print(tr1)
 # print(tr1.name)
 # print(tr1.description)
 # print(tr1.doors)

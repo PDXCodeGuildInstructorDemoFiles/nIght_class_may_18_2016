@@ -15,8 +15,7 @@ def process_user_movement(description, doors):
         description: dictionary with door:location sets
     """
     print(description)
-    temp = input('pause')
-    return doors['south']
+    
 
 
 def room0():

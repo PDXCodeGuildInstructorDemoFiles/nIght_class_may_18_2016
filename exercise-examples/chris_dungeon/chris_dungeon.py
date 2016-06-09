@@ -2,6 +2,7 @@ import random
 from monsterinfo import m_names, r_desc
 import os
 
+
 class Room:
     def __init__(self, name, description, doors, monster):
         self.name = name
@@ -21,6 +22,7 @@ class Player:
     def __init__(self, name):
         self.name = name
         self.hp = 100
+
         self.location = None
         self.weapon = None
         self.helm = None
@@ -39,9 +41,8 @@ class Player:
             print('This room looks familiar...')
         else:
             self.location.visited = True
-        print(self.location.monster)
-        # if self.location.monster.alive:
-        #     self.combat()
+        if self.location.monster.alive:
+            self.combat()
         print("You see doors to the " + ', '.join(self.location.doors.keys()), end='. ')
         choice = input('What direction would you like to go? ').lower()
         if choice in self.location.doors:
@@ -53,12 +54,14 @@ class Player:
 
     def combat(self):
         print("You are being attacked by {}".format(self.location.monster.name))
+        attack = input('Attack with: Physical or Magic ')
 
     def __str__(self):
         return self.name
 
     def __repr__(self):
         return self.name
+
 
 class Monster:
     def __init__(self, name):
@@ -67,8 +70,13 @@ class Monster:
         self.hp = random.randint(85, 110)
         self.loot = None
 
+    def __str__(self):
+        return self.name
 
-# Create random monsters for each room
+    def __repr__(self):
+        return self.name
+
+# Create random monsters for each room using names from m_names
 monsters = []
 for mnstrs in range(10):
     name = random.choice(m_names)
@@ -77,16 +85,20 @@ for mnstrs in range(10):
     monsters.append(mon)
 
 # Create Rooms
-room01 = Room('room01', 'You awake in a strange empty rooom.', monsters.pop(random.randrange(len(monsters))), {})
-room02 = Room('room02', r_desc.pop(random.randrange(len(r_desc))), monsters.pop(random.randrange(len(monsters))), {})
-room03 = Room('room03', r_desc.pop(random.randrange(len(r_desc))), monsters.pop(random.randrange(len(monsters))), {})
-room04 = Room('room04', r_desc.pop(random.randrange(len(r_desc))), monsters.pop(random.randrange(len(monsters))), {})
-room05 = Room('room05', r_desc.pop(random.randrange(len(r_desc))), monsters.pop(random.randrange(len(monsters))), {})
-room06 = Room('room06', r_desc.pop(random.randrange(len(r_desc))), monsters.pop(random.randrange(len(monsters))), {})
-room07 = Room('room07', r_desc.pop(random.randrange(len(r_desc))), monsters.pop(random.randrange(len(monsters))), {})
-room08 = Room('room08', r_desc.pop(random.randrange(len(r_desc))), monsters.pop(random.randrange(len(monsters))), {})
-room09 = Room('room09', r_desc.pop(random.randrange(len(r_desc))), monsters.pop(random.randrange(len(monsters))), {})
-room10 = Room('room10', r_desc.pop(random.randrange(len(r_desc))), monsters.pop(random.randrange(len(monsters))), {})
+# name: Name of room
+# description: Random Room description from r_desc
+# doors: doors to other rooms
+# monster: random monster
+room01 = Room('room01', 'You awake in a strange empty rooom.', {}, monsters.pop(random.randrange(len(monsters))))
+room02 = Room('room02', r_desc.pop(random.randrange(len(r_desc))), {}, monsters.pop(random.randrange(len(monsters))))
+room03 = Room('room03', r_desc.pop(random.randrange(len(r_desc))), {}, monsters.pop(random.randrange(len(monsters))))
+room04 = Room('room04', r_desc.pop(random.randrange(len(r_desc))), {}, monsters.pop(random.randrange(len(monsters))))
+room05 = Room('room05', r_desc.pop(random.randrange(len(r_desc))), {}, monsters.pop(random.randrange(len(monsters))))
+room06 = Room('room06', r_desc.pop(random.randrange(len(r_desc))), {}, monsters.pop(random.randrange(len(monsters))))
+room07 = Room('room07', r_desc.pop(random.randrange(len(r_desc))), {}, monsters.pop(random.randrange(len(monsters))))
+room08 = Room('room08', r_desc.pop(random.randrange(len(r_desc))), {}, monsters.pop(random.randrange(len(monsters))))
+room09 = Room('room09', r_desc.pop(random.randrange(len(r_desc))), {}, monsters.pop(random.randrange(len(monsters))))
+room10 = Room('room10', r_desc.pop(random.randrange(len(r_desc))), {}, monsters.pop(random.randrange(len(monsters))))
 
 # Make room connections
 room01.doors = {'south': room02}

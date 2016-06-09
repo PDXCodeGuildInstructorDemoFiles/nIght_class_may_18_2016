@@ -7,7 +7,6 @@ class Room:
         self.name = name
         self.description = description
         self.monster = monster
-        self.m_alive = True
         self.doors = doors
         self.visited = False
 
@@ -23,6 +22,11 @@ class Player:
         self.name = name
         self.hp = 100
         self.location = None
+        self.weapon = None
+        self.helm = None
+        self.chest = None
+        self.pants = None
+        self.backback = []
 
     def move(self, room):
         self.location = room
@@ -30,8 +34,15 @@ class Player:
     def user_interaction(self):
         os.system('cls' if os.name == 'nt' else 'clear')
         print(self.location.description)
-        print()
-        print("You see doors to the " + ', '.join(self.location.doors.keys()), end='.')
+        if self.location.visited:
+            print()
+            print('This room looks familiar...')
+        else:
+            self.location.visited = True
+        print(self.location.monster)
+        # if self.location.monster.alive:
+        #     self.combat()
+        print("You see doors to the " + ', '.join(self.location.doors.keys()), end='. ')
         choice = input('What direction would you like to go? ').lower()
         if choice in self.location.doors:
             self.move(self.location.doors[choice])
@@ -40,20 +51,32 @@ class Player:
         else:
             print("I do not understand. Please try again.")
 
+    def combat(self):
+        print("You are being attacked by {}".format(self.location.monster.name))
+
     def __str__(self):
         return self.name
 
     def __repr__(self):
         return self.name
 
+class Monster:
+    def __init__(self, name):
+        self.name = name
+        self.alive = True
+        self.hp = random.randint(85, 110)
+        self.loot = None
 
+
+# Create random monsters for each room
 monsters = []
 for mnstrs in range(10):
     name = random.choice(m_names)
     m_names.remove(name)
-    mon = Player(name)
+    mon = Monster(name)
     monsters.append(mon)
 
+# Create Rooms
 room01 = Room('room01', 'You awake in a strange empty rooom.', monsters.pop(random.randrange(len(monsters))), {})
 room02 = Room('room02', r_desc.pop(random.randrange(len(r_desc))), monsters.pop(random.randrange(len(monsters))), {})
 room03 = Room('room03', r_desc.pop(random.randrange(len(r_desc))), monsters.pop(random.randrange(len(monsters))), {})
@@ -65,6 +88,7 @@ room08 = Room('room08', r_desc.pop(random.randrange(len(r_desc))), monsters.pop(
 room09 = Room('room09', r_desc.pop(random.randrange(len(r_desc))), monsters.pop(random.randrange(len(monsters))), {})
 room10 = Room('room10', r_desc.pop(random.randrange(len(r_desc))), monsters.pop(random.randrange(len(monsters))), {})
 
+# Make room connections
 room01.doors = {'south': room02}
 room02.doors = {'south': room06}
 room03.doors = {'north': room01, 'south': room07}
@@ -76,7 +100,12 @@ room08.doors = {'north': room04, 'south': room09, 'west': room07}
 room09.doors = {'north': room08, 'east': room10}
 room10.doors = {"west": room09}
 
+# Instanciate player and place them in room01
 player = Player(input("What is your name hero? "))
 player.move(room01)
+
+print(monsters)
+
+# Run the game
 while True:
     player.user_interaction()

@@ -1,5 +1,6 @@
 import random
-from monsterinfo import m_names, r_desc
+from monsterinfo import m_names, r_desc, magic_w_names, sword_w_names
+from monsterinfo import helm_a_name, chest_a_name, pants_a_name
 import os
 
 
@@ -22,7 +23,8 @@ class Player:
     def __init__(self, name):
         self.name = name
         self.hp = 100
-
+        self.physical = 10
+        self.magic = 10
         self.location = None
         self.weapon = None
         self.helm = None
@@ -42,7 +44,7 @@ class Player:
         else:
             self.location.visited = True
         if self.location.monster.alive:
-            self.combat()
+            self.combat(self.location.monster)
         print("You see doors to the " + ', '.join(self.location.doors.keys()), end='. ')
         choice = input('What direction would you like to go? ').lower()
         if choice in self.location.doors:
@@ -52,9 +54,17 @@ class Player:
         else:
             print("I do not understand. Please try again.")
 
-    def combat(self):
+    def combat(self, mon):
         print("You are being attacked by {}".format(self.location.monster.name))
-        attack = input('Attack with: Physical or Magic ')
+        attack = input('Attack with: (S)imple, (P)hysical or (M)agic? ').lower()
+        if attack == 's':
+            if self.magic > self.physical:
+                mpow = self.magic + random.randint(1, 10)
+                mon.hp -= mpow
+        elif attack == 'p':
+            pass
+        elif attack == 'm':
+            pass
 
     def __str__(self):
         return self.name
@@ -64,11 +74,15 @@ class Player:
 
 
 class Monster:
-    def __init__(self, name):
+    def __init__(self, name, weapon):
         self.name = name
         self.alive = True
         self.hp = random.randint(85, 110)
         self.loot = None
+        self.weapon = weapon
+
+    def attack(self):
+        apow = self.weapon.power
 
     def __str__(self):
         return self.name
@@ -76,14 +90,127 @@ class Monster:
     def __repr__(self):
         return self.name
 
+
+class Weapon:
+    def __init__(self, dmg_type, dmg, name):
+        self.dmg_type = dmg_type
+        self.dmg = dmg
+        self.name = name
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return self.name
+
+
+class Armor:
+    def __init__(self, ar, tpe, name):
+        self.armor_rating = ar
+        self.tpe = tpe
+        self.name = name
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return self.name
+
+
+# Create random weapons
+weapons = []
+for wp in range(20):
+    wp_type = random.randint(1, 2)
+    if wp_type == 1:
+        name = random.choice(magic_w_names)
+        magic_w_names.remove(name)
+        dmg = random.randint(5, 10)
+        crit = random.randint(1, 2)
+        if crit == 2:
+            ex_dmg = random.choice([10, 10, 10, 10, 15, 15, 20])
+            dmg += ex_dmg
+            if ex_dmg == 20:
+                name += ' of Ultamate Power'
+            else:
+                name += ' of Power'
+        weapon = Weapon('Magic', dmg, name)
+        weapons.append(weapon)
+    else:
+        name = random.choice(sword_w_names)
+        sword_w_names.remove(name)
+        dmg = random.randint(5, 10)
+        crit = random.randint(1, 2)
+        if crit == 2:
+            ex_dmg = random.choice([10, 10, 10, 10, 15, 15, 20])
+            dmg += ex_dmg
+            if ex_dmg == 20:
+                name += ' of Ultamate Power'
+            else:
+                name += ' of Power'
+        weapon = Weapon('Physical', dmg, name)
+        weapons.append(weapon)
+
 # Create random monsters for each room using names from m_names
 monsters = []
 for mnstrs in range(10):
     name = random.choice(m_names)
     m_names.remove(name)
-    mon = Monster(name)
+    wpn = random.choice(weapons)
+    weapons.remove(wpn)
+    mon = Monster(name, wpn)
     monsters.append(mon)
 
+helms = []
+for h in range(10):
+    name = random.choice(helm_a_name)
+    helm_a_name.remove(name)
+    ar = random.randint(1, 5)
+    crit = random.randint(1, 2)
+    if crit == 2:
+        ex_ar = random.choice([10, 10, 10, 10, 15, 15, 20])
+        ar += ex_ar
+        if ex_ar == 20:
+            name += ' of Ultamate Power'
+        else:
+            name += ' of Power'
+    helm = Armor(ar, 'Helm', name)
+    helms.append(helm)
+
+chests = []
+for c in range(10):
+    name = random.choice(chest_a_name)
+    chest_a_name.remove(name)
+    ar = random.randint(1, 5)
+    crit = random.randint(1, 2)
+    if crit == 2:
+        ex_ar = random.choice([10, 10, 10, 10, 15, 15, 20])
+        ar += ex_ar
+        if ex_ar == 20:
+            name += ' of Ultamate Power'
+        else:
+            name += ' of Power'
+    chest = Armor(ar, 'Chest', name)
+    chests.append(chest)
+
+pants = []
+for p in range(10):
+    name = random.choice(pants_a_name)
+    pants_a_name.remove(name)
+    ar = random.randint(1, 5)
+    crit = random.randint(1, 2)
+    if crit == 2:
+        ex_ar = random.choice([10, 10, 10, 10, 15, 15, 20])
+        ar += ex_ar
+        if ex_ar == 20:
+            name += ' of Ultamate Power'
+        else:
+            name += ' of Power'
+    pant = Armor(ar, 'Pants', name)
+    pants.append(pant)
+
+loots = pants + chests + helms + weapons
+
+print(loots)
 # Create Rooms
 # name: Name of room
 # description: Random Room description from r_desc
@@ -116,8 +243,8 @@ room10.doors = {"west": room09}
 player = Player(input("What is your name hero? "))
 player.move(room01)
 
-print(monsters)
+
 
 # Run the game
-while True:
-    player.user_interaction()
+# while True:
+#     player.user_interaction()

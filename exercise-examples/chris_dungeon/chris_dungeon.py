@@ -30,13 +30,24 @@ class Player:
         self.helm = None
         self.chest = None
         self.pants = None
-        self.backback = []
+        self.backback = {}
+
+    def show_backpack(self):
+        for key, item in self.backback.items():
+            print(str(key) + ' - ' + item.name)
+
+    def backpack_menu(self):
+        while True:
+            print('*' * 40)
+            self.show_backpack()
+            print('*' * 40)
+            print("To equip")
 
     def move(self, room):
         self.location = room
 
     def user_interaction(self):
-        os.system('cls' if os.name == 'nt' else 'clear')
+        # os.system('cls' if os.name == 'nt' else 'clear')
         print(self.location.description)
         if self.location.visited:
             print()
@@ -49,6 +60,8 @@ class Player:
         choice = input('What direction would you like to go? ').lower()
         if choice in self.location.doors:
             self.move(self.location.doors[choice])
+        elif choice == 'backpack':
+            self.show_backpack()
         elif choice == 'exit':
             exit()
         else:
@@ -56,15 +69,44 @@ class Player:
 
     def combat(self, mon):
         print("You are being attacked by {}".format(self.location.monster.name))
-        attack = input('Attack with: (S)imple, (P)hysical or (M)agic? ').lower()
-        if attack == 's':
-            if self.magic > self.physical:
-                mpow = self.magic + random.randint(1, 10)
-                mon.hp -= mpow
-        elif attack == 'p':
-            pass
-        elif attack == 'm':
-            pass
+        while mon.hp > 0 and self.hp > 0:
+            print()
+            print("Your HP is {0}".format(self.hp))
+            print('{0} HP is {1}'.format(mon.name, mon.hp))
+            attack = input('Attack with: (S)imple, (P)hysical or (M)agic? ').lower()
+            if attack == 's':
+                player_attack = random.randint(3, 10)
+                mon.hp -= player_attack
+                print("You hit {0} for {1}".format(mon.name, player_attack))
+                mon_attack = mon.weapon.dmg
+                self.hp -= mon_attack
+                print("{0} attacks you for {1}".format(mon.name, mon_attack))
+            elif attack == 'p':
+                player_attack = self.physical + random.randint(3, 10)
+                mon.hp -= player_attack
+                print("You hit {0} for {1}".format(mon.name, player_attack))
+                mon_attack = mon.weapon.dmg
+                self.hp -= mon_attack
+                print("{0} attacks you for {1}".format(mon.name, mon_attack))
+            elif attack == 'm':
+                player_attack = self.magic + random.randint(3, 10)
+                mon.hp -= player_attack
+                print("You hit {0} for {1}".format(mon.name, player_attack))
+                mon_attack = mon.weapon.dmg
+                self.hp -= mon_attack
+                print("{0} attacks you for {1}".format(mon.name, mon_attack))
+            else:
+                print("I do not understand that command")
+        else:
+            if self.hp <= 0:
+                print("You have died. Such a shame.")
+                exit()
+            else:
+                mon.alive = False
+                print('You have defeated {0}. After digging around his body you find {1}'.format(mon.name, mon.loot))
+                item_number = len(self.backback)
+                self.backback[item_number] = mon.loot
+                mon.loot = None
 
     def __str__(self):
         return self.name
@@ -74,11 +116,11 @@ class Player:
 
 
 class Monster:
-    def __init__(self, name, weapon):
+    def __init__(self, name, weapon, lt):
         self.name = name
         self.alive = True
         self.hp = random.randint(85, 110)
-        self.loot = None
+        self.loot = lt
         self.weapon = weapon
 
     def attack(self):
@@ -117,6 +159,25 @@ class Armor:
         return self.name
 
 
+def create_armor(tpe, name_list, number):
+    lst = []
+    for h in range(number):
+        name = random.choice(name_list)
+        name_list.remove(name)
+        ar = random.randint(1, 5)
+        crit = random.randint(1, 2)
+        if crit == 2:
+            ex_ar = random.choice([10, 10, 10, 10, 15, 15, 20])
+            ar += ex_ar
+            if ex_ar == 20:
+                name += ' of Ultamate Power'
+            else:
+                name += ' of Power'
+        item = Armor(ar, tpe, name)
+        lst.append(item)
+    return lst
+
+
 # Create random weapons
 weapons = []
 for wp in range(20):
@@ -150,6 +211,12 @@ for wp in range(20):
         weapon = Weapon('Physical', dmg, name)
         weapons.append(weapon)
 
+
+helms = create_armor('Helm', helm_a_name, 10)
+chests = create_armor('Chest', chest_a_name, 10)
+pants = create_armor('Pants', pants_a_name, 10)
+loot = pants + chests + helms + weapons
+
 # Create random monsters for each room using names from m_names
 monsters = []
 for mnstrs in range(10):
@@ -157,60 +224,13 @@ for mnstrs in range(10):
     m_names.remove(name)
     wpn = random.choice(weapons)
     weapons.remove(wpn)
-    mon = Monster(name, wpn)
+    lt = random.choice(loot)
+    loot.remove(lt)
+    mon = Monster(name, wpn, lt)
     monsters.append(mon)
 
-helms = []
-for h in range(10):
-    name = random.choice(helm_a_name)
-    helm_a_name.remove(name)
-    ar = random.randint(1, 5)
-    crit = random.randint(1, 2)
-    if crit == 2:
-        ex_ar = random.choice([10, 10, 10, 10, 15, 15, 20])
-        ar += ex_ar
-        if ex_ar == 20:
-            name += ' of Ultamate Power'
-        else:
-            name += ' of Power'
-    helm = Armor(ar, 'Helm', name)
-    helms.append(helm)
 
-chests = []
-for c in range(10):
-    name = random.choice(chest_a_name)
-    chest_a_name.remove(name)
-    ar = random.randint(1, 5)
-    crit = random.randint(1, 2)
-    if crit == 2:
-        ex_ar = random.choice([10, 10, 10, 10, 15, 15, 20])
-        ar += ex_ar
-        if ex_ar == 20:
-            name += ' of Ultamate Power'
-        else:
-            name += ' of Power'
-    chest = Armor(ar, 'Chest', name)
-    chests.append(chest)
 
-pants = []
-for p in range(10):
-    name = random.choice(pants_a_name)
-    pants_a_name.remove(name)
-    ar = random.randint(1, 5)
-    crit = random.randint(1, 2)
-    if crit == 2:
-        ex_ar = random.choice([10, 10, 10, 10, 15, 15, 20])
-        ar += ex_ar
-        if ex_ar == 20:
-            name += ' of Ultamate Power'
-        else:
-            name += ' of Power'
-    pant = Armor(ar, 'Pants', name)
-    pants.append(pant)
-
-loots = pants + chests + helms + weapons
-
-print(loots)
 # Create Rooms
 # name: Name of room
 # description: Random Room description from r_desc
@@ -246,5 +266,5 @@ player.move(room01)
 
 
 # Run the game
-# while True:
-#     player.user_interaction()
+while True:
+    player.user_interaction()

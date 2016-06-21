@@ -1,0 +1,22 @@
+.smallWidth {
+  max-width: 50%;
+}
+.redText {
+  color: red;
+}
+#firstArt {
+  background-color: green;
+}
+#secondArt {
+  background-color: blue;
+}
+#secondArt img {
+  width: 50px;
+}
+#secondArtTitle {
+  color: purple;
+  font-size: 5em;
+}
+#bigKitty {
+  width: 150px !important
+}

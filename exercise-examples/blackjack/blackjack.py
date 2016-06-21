@@ -7,9 +7,6 @@ class Card:
         self.face = face
         self.value = value
 
-    def __str__(self):
-        return '{f} of {s}'.format(f=self.face, s=self.suit)
-
     def __repr__(self):
         return '{f} of {s}'.format(f=self.face, s=self.suit)
 
@@ -18,7 +15,6 @@ class Deck:
     def __init__(self, number_of_decks):
         self.cards = self.create_deck(number_of_decks)
         self.shuffle_deck()
-
 
     def shuffle_deck(self):
         random.shuffle(self.cards)
@@ -65,6 +61,10 @@ class BlackJack:
         card = self.deck.cards.pop()
         return card
 
+    def clear_round(self):
+        for pl in players:
+            pl.hand_lost = False
+
     def run_game(self):
         self.deal()
         print("Dealer is showing a {}".format(self.dealer.cards[0]))
@@ -108,7 +108,7 @@ class BlackJack:
                     dealer_turn = False
             else:
                 for pl in self.players:
-                    if pl.hand_value > self.dealer.hand_value:
+                    if pl.hand_value > self.dealer.hand_value and not pl.hand_lost:
                         print("You win {}!".format(pl.name))
                     elif pl.hand_value == self.dealer.hand_value:
                         print("You push {}.".format(pl.name))
@@ -121,6 +121,7 @@ class Hand:
         self.name = name
         self.cards = []
         self.hand_value = 0
+        self.hand_lost = False
 
     def display_hand(self):
         print()
@@ -146,18 +147,17 @@ class Hand:
                 if self.hand_value + 10 <= 21:
                     self.hand_value += 10
 
-    def __str__(self):
-        return self.name
-
     def __repr__(self):
         return self.name
 
 
-game = BlackJack(6)
-game.run_game()
-# print(game.players)
-# hand = Hand('test')
-# hand.cards.append(Card("Hearts", "Ace", 1))
-# hand.cards.append(Card("Hearts", "King", 10))
-# hand.get_score()
-# print(hand.hand_value)
+# game = BlackJack(6)
+# game.run_game()
+def create_players():
+    players = []
+    pl_num = int(input("How many players are there? "))
+    for pl in range(1, pl_num + 1):
+        player = Hand(input('Player {num}, what is your name? '.format(num=pl)))
+        players.append(player)
+    print(players)
+create_players()
